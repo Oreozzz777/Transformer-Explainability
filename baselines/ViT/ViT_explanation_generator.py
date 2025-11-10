@@ -81,3 +81,13 @@ class Baselines:
             all_layer_attentions.append(avg_heads)
         rollout = compute_rollout_attention(all_layer_attentions, start_layer=start_layer)
         return rollout[:,0, 1:]
+
+    def generate_attn_map(self, input, start_layer=0):
+        self.model(input)
+        blocks = self.model.blocks
+        all_layer_attentions = []
+        for blk in blocks:
+            attn_heads = blk.attn.get_attention_map()
+            avg_heads = (attn_heads.sum(dim=1) / attn_heads.shape[1]).detach()
+            all_layer_attentions.append(avg_heads)
+        return all_layer_attentions
