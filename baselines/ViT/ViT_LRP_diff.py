@@ -150,9 +150,9 @@ class Attention(nn.Module):
         k = self.k_proj(x)
         v = self.v_proj(x)
 
-        q = q.view(b, n, self.num_heads, self. * 2).transpose(1, 2)
-        k = k.view(b, n, self.num_heads, self. * 2).transpose(1, 2)
-        v = v.view(b, n, self.num_heads, self. * 2).transpose(1, 2)
+        q = q.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
+        k = k.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
+        v = v.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
         
         self.save_v(v)
         
@@ -216,9 +216,9 @@ class Attention(nn.Module):
         cam_q = torch.cat((cam_q1, cam_q2), dim=-1)
         cam_k = torch.cat((cam_k1, cam_k2), dim=-1)
         
-        cam_q = cam_q.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.dim * 2)
-        cam_k = cam_k.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.dim * 2)
-        cam_v = cam_v.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.dim)
+        cam_q = cam_q.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim * 2)
+        cam_k = cam_k.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim * 2)
+        cam_v = cam_v.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim)
 
         # Reverse Projections
         cam_x_q = self.q_proj.relprop(cam_q, **kwargs)
