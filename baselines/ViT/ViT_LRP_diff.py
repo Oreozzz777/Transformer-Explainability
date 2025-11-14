@@ -186,7 +186,7 @@ class Attention(nn.Module):
         cam = cam.view(b, n, self.num_heads, dim2).transpose(1, 2).contiguous()
         
         # attn = A*V
-        (cam1, cam_v)= self.matmul_a.relprop(cam, **kwargs)
+        # (cam1, cam_v)= self.matmul_a.relprop(cam, **kwargs)
         cam = cam * (1 - self.lambda_init)
         
         cam = self.norm.relprop(cam, **kwargs)
