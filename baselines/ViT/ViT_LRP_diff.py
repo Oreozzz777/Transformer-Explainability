@@ -145,8 +145,8 @@ class Attention(nn.Module):
         b, n, _, h = *x.shape, self.num_heads
         
         q = self.q_proj(x)
-        k = self.k_proj(k)
-        v = self.v_proj(v)
+        k = self.k_proj(x)
+        v = self.v_proj(x)
         
         self.save_v(v)
         
