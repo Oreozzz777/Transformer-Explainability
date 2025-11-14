@@ -79,7 +79,7 @@ class Attention(nn.Module):
         super().__init__()
         self.num_heads = num_heads
         self.dim = dim
-        head_dim = dim // num_heads
+        self.head_dim = dim // num_heads
         # NOTE scale factor was wrong in my original version, can set manually to be compat with prev weights
         self.scale1 = head_dim ** -0.5
         self.scale2 = head_dim ** -0.5
@@ -87,12 +87,12 @@ class Attention(nn.Module):
         self.lambda_init = 0.8
         self.lambda_param = nn.Parameter(torch.tensor(self.lambda_init))
         
-        self.q_proj = Linear(dim, num_heads * head_dim * 2, bias=qkv_bias)
-        self.k_proj = Linear(dim, num_heads * head_dim * 2, bias=qkv_bias)
-        self.v_proj = Linear(dim, num_heads * head_dim * 2, bias=qkv_bias)
-        self.o_proj = Linear(self.num_heads * head_dim * 2, dim)
+        self.q_proj = Linear(dim, num_heads * self.head_dim * 2, bias=qkv_bias)
+        self.k_proj = Linear(dim, num_heads * self.head_dim * 2, bias=qkv_bias)
+        self.v_proj = Linear(dim, num_heads * self.head_dim * 2, bias=qkv_bias)
+        self.o_proj = Linear(self.num_heads * self.head_dim * 2, dim)
         
-        self.norm = LayerNorm(head_dim * 2, eps=1E-06)
+        self.norm = LayerNorm(self.head_dim * 2, eps=1E-06)
         
         # A = Q*K^T
         self.matmul_s1 = einsum('bhid,bhjd->bhij')
@@ -150,9 +150,9 @@ class Attention(nn.Module):
         k = self.k_proj(x)
         v = self.v_proj(x)
 
-        q = q.view(b, n, self.num_heads, self.dim * 2).transpose(1, 2)
-        k = k.view(b, n, self.num_heads, self.dim * 2).transpose(1, 2)
-        v = v.view(b, n, self.num_heads, self.dim * 2).transpose(1, 2)
+        q = q.view(b, n, self.num_heads, self. * 2).transpose(1, 2)
+        k = k.view(b, n, self.num_heads, self. * 2).transpose(1, 2)
+        v = v.view(b, n, self.num_heads, self. * 2).transpose(1, 2)
         
         self.save_v(v)
         
@@ -171,7 +171,7 @@ class Attention(nn.Module):
         
         a = self.norm(self.matmul_a([l_diff, v])) * (1 - self.lambda_init)
         
-        a = a.transpose(1, 2).contiguous().view(b, n, self.num_heads * dim * 2)
+        a = a.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim * 2)
         
         o = self.o_proj(a)
         o = self.proj_drop(o)
