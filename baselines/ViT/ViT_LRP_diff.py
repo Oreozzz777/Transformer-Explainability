@@ -143,7 +143,8 @@ class Attention(nn.Module):
         return self.attn_gradients
 
     def forward(self, x):
-        b, n, _, h = *x.shape, self.num_heads
+        b = x.shape[0]
+        n = x.shape[1]
         
         q = self.q_proj(x)
         k = self.k_proj(x)
