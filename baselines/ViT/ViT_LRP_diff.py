@@ -144,9 +144,9 @@ class Attention(nn.Module):
     def forward(self, x):
         b, n, _, h = *x.shape, self.num_heads
         
-        q = self.proj(x)
-        k = self.proj(k)
-        v = self.proj(v)
+        q = self.q_proj(x)
+        k = self.k_proj(k)
+        v = self.v_proj(v)
         
         self.save_v(v)
         
@@ -167,7 +167,7 @@ class Attention(nn.Module):
         
         a = a.transpose(1, 2).contiguous().view(b, n, self.num_heads * dim * 2)
         
-        o = self.proj_o(a)
+        o = self.o_proj(a)
         o = self.proj_drop(o)
         
         return o
