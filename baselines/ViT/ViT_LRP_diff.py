@@ -152,9 +152,8 @@ class Attention(nn.Module):
 
         q = q.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
         k = k.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
-        v = v.view(b, n, self.num_heads, self.head_dim * 2)
+        v = v.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
         self.save_v(v)
-        v = v.transpose(1, 2)
         
         q1, q2 = torch.chunk(q, 2, dim=-1)
         k1, k2 = torch.chunk(k, 2, dim=-1)
@@ -184,7 +183,7 @@ class Attention(nn.Module):
         cam = self.o_proj.relprop(cam, **kwargs)
         cam = rearrange(cam, 'b n (h d) -> b h n d', h=self.num_heads)
         
-        cam = cam.view(b, self.num_heads, n, dim2).transpose(1, 2).contiguous()
+        cam = cam.view(b, self.num_heads, n, self.dim).transpose(1, 2).contiguous()
         
         # attn = A*V
         (cam1, cam_v)= self.matmul_a.relprop(cam, **kwargs)
