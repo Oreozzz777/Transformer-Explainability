@@ -84,7 +84,7 @@ class Attention(nn.Module):
         self.scale = head_dim ** -0.5
         
         self.lambda_init = 0.8
-        self.lambda_param = nn.Parameter(torch.tensor(lambda_init))
+        self.lambda_param = nn.Parameter(torch.tensor(self.lambda_init))
         
         self.q_proj = Linear(dim, num_heads * head_dim * 2, bias=qkv_bias)
         self.k_proj = Linear(dim, num_heads * head_dim * 2, bias=qkv_bias)
