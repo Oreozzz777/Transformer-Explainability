@@ -81,8 +81,8 @@ class Attention(nn.Module):
         self.dim = dim
         self.head_dim = dim // num_heads
         # NOTE scale factor was wrong in my original version, can set manually to be compat with prev weights
-        self.scale1 = head_dim ** -0.5
-        self.scale2 = head_dim ** -0.5
+        self.scale1 = self.head_dim ** -0.5
+        self.scale2 = self.head_dim ** -0.5
         
         self.lambda_init = 0.8
         self.lambda_param = nn.Parameter(torch.tensor(self.lambda_init))
