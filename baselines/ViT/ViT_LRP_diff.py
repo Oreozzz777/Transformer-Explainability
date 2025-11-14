@@ -181,9 +181,9 @@ class Attention(nn.Module):
         b, _, n, dim2 = self.get_v().shape
         cam = self.proj_drop.relprop(cam, **kwargs)
         cam = self.o_proj.relprop(cam, **kwargs)
-        cam = rearrange(cam, 'b n (h d) -> b h n d', h=self.num_heads)
+        # cam = rearrange(cam, 'b n (h d) -> b h n d', h=self.num_heads)
         
-        cam = cam.view(b, self.num_heads, n, self.dim).transpose(1, 2).contiguous()
+        cam = cam.view(b, n, self.num_heads, dim2).transpose(1, 2).contiguous()
         
         # attn = A*V
         (cam1, cam_v)= self.matmul_a.relprop(cam, **kwargs)
@@ -217,7 +217,7 @@ class Attention(nn.Module):
         
         cam_q = cam_q.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim * 2)
         cam_k = cam_k.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim * 2)
-        cam_v = cam_v.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim)
+        cam_v = cam_v.transpose(1, 2).contiguous().view(b, n, self.num_heads * self.head_dim * 2)
 
         # Reverse Projections
         cam_x_q = self.q_proj.relprop(cam_q, **kwargs)
