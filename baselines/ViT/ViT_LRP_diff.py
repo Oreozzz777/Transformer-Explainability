@@ -152,9 +152,9 @@ class Attention(nn.Module):
 
         q = q.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
         k = k.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
-        v = v.view(b, n, self.num_heads, self.head_dim * 2).transpose(1, 2)
-        
+        v = v.view(b, n, self.num_heads, self.head_dim * 2)
         self.save_v(v)
+        v = v.transpose(1, 2)
         
         q1, q2 = torch.chunk(q, 2, dim=-1)
         k1, k2 = torch.chunk(k, 2, dim=-1)
