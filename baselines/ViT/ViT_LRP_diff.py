@@ -149,6 +149,10 @@ class Attention(nn.Module):
         q = self.q_proj(x)
         k = self.k_proj(x)
         v = self.v_proj(x)
+
+        q = q.view(b, n, self.num_heads, self.dim * 2)
+        k = k.view(b, n, self.num_heads, self.dim * 2)
+        v = v.view(b, n, self.num_heads, self.dim * 2)
         
         self.save_v(v)
         
