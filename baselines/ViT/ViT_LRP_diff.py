@@ -94,7 +94,6 @@ class Attention(nn.Module):
         
         self.norm = LayerNorm(self.head_dim * 2, eps=1E-06)
         
-        # A = Q*K^T
         self.matmul_s1 = einsum('bhid,bhjd->bhij')
         self.matmul_s2 = einsum('bhid,bhjd->bhij')
         self.matmul_a = einsum('bhij,bhjd->bhid')
@@ -111,6 +110,8 @@ class Attention(nn.Module):
         self.v = None
         self.v_cam = None
         self.attn_gradients = None
+
+        self.enable_hooks = False
 
     def get_attn(self):
         return self.attn
@@ -166,7 +167,9 @@ class Attention(nn.Module):
         
         l_diff = l1 - self.lambda_param * l2
         self.save_attn(l_diff)
-        l_diff.register_hook(self.save_attn_gradients)
+
+        if self.enable_hooks:
+            l_diff.register_hook(self.save_attn_gradients)
         
         a = self.norm(self.matmul_a([l_diff, v])) * (1 - self.lambda_init)
         
@@ -333,6 +336,8 @@ class VisionTransformer(nn.Module):
 
         self.inp_grad = None
 
+        self.enable_hooks = False
+    
     def save_inp_grad(self,grad):
         self.inp_grad = grad
 
@@ -361,9 +366,11 @@ class VisionTransformer(nn.Module):
         x = torch.cat((cls_tokens, x), dim=1)
         x = self.add([x, self.pos_embed])
 
-        x.register_hook(self.save_inp_grad)
-
+        if self.enable_hooks and x.requires_grad:
+            x.register_hook(self.save_inp_grad)
+        
         for blk in self.blocks:
+            blk.attn.enable_hooks = self.enable_hooks
             x = blk(x)
 
         x = self.norm(x)
